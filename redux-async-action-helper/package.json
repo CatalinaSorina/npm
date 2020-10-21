@@ -1,0 +1,18 @@
+{
+  "name": "redux-async-action-helper",
+  "version": "1.0.0",
+  "description": "This function get a string constant from a redux action and create the additional actions and dispatchers needed for an async action.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "async",
+    "redux",
+    "actions",
+    "dispatchers",
+    "react"
+  ],
+  "author": "Catalina",
+  "license": "ISC"
+}
