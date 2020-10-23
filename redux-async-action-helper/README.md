@@ -1,7 +1,7 @@
 # Redux async action helper
 
 You are a react redux fan or you just use redux in many projects?  
-You are tired to creat all the time the actions needed for an asynchronous action?  
+You are tired to create all the time the actions needed for an asynchronous action?  
 Than ... this package may be a very handy one for you (✿◕‿◕).
 
 ## How to use? Guide:
