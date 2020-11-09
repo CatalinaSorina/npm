@@ -1,20 +1,20 @@
-exports.isArray = element => Array.isArray(element);
-exports.isObject = element => typeof element === 'object';
-exports.keys = object => {
+exports.isArray = (element) => Array.isArray(element);
+exports.isObject = (element) => typeof element === 'object';
+exports.keys = (object) => {
   if (this.isObject(object)) {
     return Object.keys(object);
   }
   return new Error('The parameter must be an object!');
 };
-exports.values = object => {
+exports.values = (object) => {
   if (this.isObject(object)) {
     return Object.values(object);
   }
   return new Error('The parameter must be an object!');
 };
-exports.sort = container => {
+exports.sort = (container) => {
   if (this.isArray(container)) {
-    const isArrayOfNumbers = container.every(val => typeof val === 'number');
+    const isArrayOfNumbers = container.every((val) => typeof val === 'number');
     if (isArrayOfNumbers) {
       return container.sort((a, b) => a - b);
     }
@@ -22,17 +22,28 @@ exports.sort = container => {
   } else if (this.isObject(container)) {
     const sortedContainer = {};
     const sortedArray = this.sort(this.keys(container));
-    sortedArray.forEach(key => {
+    sortedArray.forEach((key) => {
       sortedContainer[key] = container[key];
     });
     return sortedContainer;
   }
   return new Error('You can sort only arrays and objects(by keys).');
 };
-
-const internDeepCheckStringify = container => {
+exports.checkIfEmpty = (container) => {
+  // CHECK IF container IS ARRAY
   if (this.isArray(container)) {
-    // IF CONTAINER IS ARRAY
+    return container.length === 0;
+  }
+  // CHECK IF container IS OBJECT
+  if (this.isObject(container)) {
+    return this.keys(container).length === 0;
+  }
+  return new Error('Please provide an object or an array.');
+};
+
+const internDeepCheckStringify = (container) => {
+  // IF CONTAINER IS ARRAY
+  if (this.isArray(container)) {
     // GET INDEXES WITH VALUES THAT HAVE INNER OBJECTS OR ARRAYS
     const innerIndexes = [];
     const innerArraysOrObjects = container.filter((val, index) => {
@@ -43,14 +54,14 @@ const internDeepCheckStringify = container => {
       return false;
     });
     // CHECK IF INNER KEYS EXISTS
-    if (innerIndexes.length > 0) {
+    if (!this.checkIfEmpty(innerIndexes)) {
       // REMOVE INDEXES FROM ARRAY
       const removedInners = container.filter(
         (val, index) => !innerIndexes.includes(index)
       );
       // STRINGIFY INNER ARRAYS OR OBJECTS
-      const stringifyInnerArraysOrObjects = innerArraysOrObjects.map(innerVal =>
-        internDeepCheckStringify(innerVal)
+      const stringifyInnerArraysOrObjects = innerArraysOrObjects.map(
+        (innerVal) => internDeepCheckStringify(innerVal)
       );
       // ADD INDEXES TO ARRAY
       removedInners.push(...stringifyInnerArraysOrObjects);
@@ -64,8 +75,9 @@ const internDeepCheckStringify = container => {
     const sortedContainer = this.sort(container);
     // STRINGIFY ARRAY
     return JSON.stringify(sortedContainer);
-  } else if (this.isObject(container)) {
-    // IF CONTAINER IS OBJECT
+  }
+  // IF CONTAINER IS OBJECT
+  if (this.isObject(container)) {
     // GET KEYS WITH VALUES THAT HAVE INNER OBJECTS OR ARRAYS
     const innerKeys = [];
     const innerArraysOrObjects = this.values(container).filter((val, index) => {
@@ -76,14 +88,14 @@ const internDeepCheckStringify = container => {
       return false;
     });
     // CHECK IF INNER KEYS EXISTS
-    if (innerKeys.length > 0) {
+    if (!this.checkIfEmpty(innerKeys)) {
       // REMOVE KEYS FROM OBJECT
-      this.keys(container).forEach(key => {
+      this.keys(container).forEach((key) => {
         if (innerKeys.includes(key)) delete container[key];
       });
       // STRINGIFY INNER ARRAYS OR OBJECTS
-      const stringifyInnerArraysOrObjects = innerArraysOrObjects.map(innerVal =>
-        internDeepCheckStringify(innerVal)
+      const stringifyInnerArraysOrObjects = innerArraysOrObjects.map(
+        (innerVal) => internDeepCheckStringify(innerVal)
       );
       // ADD STRINGIFIED VALUES
       stringifyInnerArraysOrObjects.forEach((innerVal, index) => {
@@ -106,22 +118,23 @@ const internDeepCheckStringify = container => {
 exports.check = (container, property) => {
   // CHECK IF CONTAINER AND PROPERTY ARE NOT NULL
   if (container && property) {
+    // IF CONTAINER IS ARRAY
     if (this.isArray(container)) {
-      // IF CONTAINER IS ARRAY
       if (this.isArray(property) || this.isObject(property)) {
         const propertyFound = container.find(
-          val =>
+          (val) =>
             typeof val === typeof property &&
             internDeepCheckStringify(val) === internDeepCheckStringify(property)
         );
         return typeof propertyFound !== 'undefined';
       }
       return container.includes(property);
-    } else if (this.isObject(container)) {
-      // IF CONTAINER IS OBJECT
+    }
+    // IF CONTAINER IS OBJECT
+    if (this.isObject(container)) {
       if (this.isArray(property) || this.isObject(property)) {
         const propertyFound = this.values(container).find(
-          val =>
+          (val) =>
             typeof val === typeof property &&
             internDeepCheckStringify(val) === internDeepCheckStringify(property)
         );
@@ -140,19 +153,6 @@ exports.check = (container, property) => {
     'The first prop is a container(array/object) and the second prop the property(value or key/value if container is an object) the container has. Please make sure to fill both.'
   );
 };
-exports.checkIfEmpty = container => {
-  // CHECK IF container IS ARRAY
-  if (this.isArray(container)) {
-    return container.length === 0;
-  }
-  // CHECK IF container IS OBJECT
-  if (this.isObject(container)) {
-    return (
-      this.keys(container).length === 0 && this.values(container).length === 0
-    );
-  }
-  return new Error('Please provide an object or an array.');
-};
 exports.checkAllBoolean = (container, conditionFunction) => {
   // CHECK IF container IS NOT NULL OR EMPTY
   if (container !== null && typeof container !== 'undefined') {
@@ -160,7 +160,7 @@ exports.checkAllBoolean = (container, conditionFunction) => {
     if (this.isArray(container)) {
       // CHECK IF THERE IS conditionFunction
       if (conditionFunction) {
-        const checkedElements = container.map(element =>
+        const checkedElements = container.map((element) =>
           conditionFunction(element)
         );
         return checkedElements.every(Boolean);
@@ -171,7 +171,7 @@ exports.checkAllBoolean = (container, conditionFunction) => {
     if (this.isObject(container)) {
       // CHECK IF THERE IS conditionFunction
       if (conditionFunction) {
-        const checkedElements = this.values(container).map(val =>
+        const checkedElements = this.values(container).map((val) =>
           conditionFunction(val)
         );
         return checkedElements.every(Boolean);
@@ -185,15 +185,15 @@ exports.checkAllBoolean = (container, conditionFunction) => {
 exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
   // CHECK IF container IS NOT NULL OR EMPTY
   if (container !== null && !this.checkIfEmpty(container)) {
-    // CHECK IF container IS ARRAY AND OBJECT
+    // CHECK IF container IS ARRAY AND HAS OBJECTS
     if (
       this.isArray(container) &&
       this.checkAllBoolean(container, this.isObject)
     ) {
       // CREATE HEAD AND BODY
       const HEAD = this.keys(container[keysOrderArrayIndex]);
-      const BODY = container.map(obj => {
-        const column = HEAD.map(key => obj[key]);
+      const BODY = container.map((obj) => {
+        const column = HEAD.map((key) => obj[key]);
         return column;
       });
       return {
@@ -334,7 +334,7 @@ exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
 //       User: ['Mark'],
 //     }
 //   )
-// );
+// ); // true
 // console.log(
 //   this.check(
 //     [
@@ -367,7 +367,7 @@ exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
 //       },
 //     ]
 //   )
-// );
+// ); // true
 // You can check only keys or values from an object (not other inner values)
 // console.log(
 //   this.check(
@@ -388,7 +388,7 @@ exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
 //     ],
 //     1
 //   )
-// );
+// ); // false
 // console.log(
 //   this.check(
 //     {
@@ -397,6 +397,6 @@ exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
 //     },
 //     'State'
 //   )
-// );
+// ); // true
 // console.log(this.check('State')); // Error: The first prop needs to be an array or an object. This is the container in which you look for a property.
 // console.log(this.check()); // Error: The first prop is a container(array/object) and the second prop the property(value or key/value if container is an object) the container has. Please make sure to fill both.
