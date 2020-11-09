@@ -11,7 +11,11 @@ You have more functions available:
 3. keys: Returns the keys of an object.
 4. values: Return the values of an object.
 5. sort: Sort an array or an object. Arrays of numbers are sorted ascending. Arrays of strings are sorted alphabetically. Object are sorted by keys.
-6. check: A function with 2 parameters that checks if in a container(first prop that can be array or object) exist a value or a key(in addition to object). Also, it has a deep check if the property(second parameter) is an array or an object. See more details in the next examples.
+6. check: A function with 2 parameters that checks if in a container(first prop that can be array or object) exist a value or a key(in addition to object). Also, it has a deep check if the property(second parameter) is an array or an object.
+7. checkIfEmpty: A function that checks if a container(array or object) is empty.
+8. checkAllBoolean: A function with 2 parameters that checks if in a container(first prop that can be array or object), values respect a conditionFunction(second param) or have booleans true.
+9. tableHeadBodyStructure: A function that create from a container(first prop that can be array or object) a table structure object with arrays HEAD and BODY. Also, it has keysOrderArrayIndex(second parameter) that is used for an array of objects container to choose the keys order.  
+See more details in the next examples.
 
 ### isArray function with prop element
 ```javascript
@@ -155,6 +159,104 @@ console.log(
 
 console.log(check('State')); // Error: The first prop needs to be an array or an object. This is the container in which you look for a property.
 console.log(check()); // Error: The first prop is a container(array/object) and the second prop the property(value or key/value if container is an object) the container has. Please make sure to fill both.
+
+```
+### checkIfEmpty function with prop container
+```javascript
+// checkIfEmpty(container)
+import { checkIfEmpty } from 'arrays-and-objects';
+
+console.log(checkIfEmpty('Table')); //Error: Please provide an object or an array.
+console.log(checkIfEmpty({ Name: '', Age: '' })); // false
+console.log(checkIfEmpty({ Name: 'John', Age: 23542 })); // false
+console.log(checkIfEmpty({})); // true
+
+```
+### checkAllBoolean function with props container and conditionFunction
+```javascript
+// checkAllBoolean(container,conditionFunction)
+import { checkAllBoolean } from 'arrays-and-objects';
+
+console.log(checkAllBoolean('Table')); //Error: Please provide an object or an array.
+console.log(
+  checkAllBoolean(
+    [
+      { NAME: 'John', AGE: 45 },
+      { NAME: 'Mary', AGE: 25 },
+    ],
+    person => person.AGE >= 26
+  )
+); // false
+console.log(
+  checkAllBoolean(
+    [
+      { NAME: 'John', AGE: 45 },
+      { NAME: 'Mary', AGE: 26 },
+    ],
+    person => person.AGE >= 26
+  )
+); // true
+
+```
+### tableHeadBodyStructure function with props container and keysOrderArrayIndex
+```javascript
+// tableHeadBodyStructure(container,keysOrderArrayIndex)
+import { tableHeadBodyStructure } from 'arrays-and-objects';
+
+console.log(tableHeadBodyStructure('Table')); // Error: Please provide an object or an array with elements.
+console.log(tableHeadBodyStructure()); // Error: Please provide an object or an array with elements.
+console.log(tableHeadBodyStructure({})); // Error: Please provide an object or an array with elements.
+console.log(tableHeadBodyStructure([123, 324, 34, 3])); //{ HEAD: [ '0', '1', '2', '3' ], BODY: [ 123, 324, 34, 3 ] }
+console.log(
+  tableHeadBodyStructure({
+    John: { AGE: 45, PROFILE: 'Active' },
+    Lucas: { AGE: 38, PROFILE: 'Inactive' },
+    Mary: { AGE: 35, PROFILE: 'Active' },
+  })
+);
+// {
+//   HEAD: [ 'John', 'Lucas', 'Mary' ],
+//   BODY: [
+//     { AGE: 45, PROFILE: 'Active' },
+//     { AGE: 38, PROFILE: 'Inactive' },
+//     { AGE: 35, PROFILE: 'Active' }
+//   ]
+// }
+console.log(
+  tableHeadBodyStructure([
+    { NAME: 'John', AGE: 45, PROFILE: 'Active' },
+    { AGE: 38, PROFILE: 'Inactive', NAME: 'Lucas' },
+    { NAME: 'Mary', PROFILE: 'Active', AGE: 35 },
+  ])
+);
+// {
+//   HEAD: [ 'NAME', 'AGE', 'PROFILE' ],
+//   BODY: [
+//     [ 'John', 45, 'Active' ],
+//     [ 'Lucas', 38, 'Inactive' ],
+//     [ 'Mary', 35, 'Active' ]
+//   ]
+// }
+console.log(
+  tableHeadBodyStructure(
+    [
+      { NAME: 'John', AGE: 45, PROFILE: 'Active' },
+      { AGE: 38, PROFILE: 'Inactive', NAME: 'Lucas' },
+      { PROFILE: 'Active', NAME: 'Mary', AGE: 35 },
+    ],
+    2
+  )
+);
+// {
+//   HEAD: [ 'PROFILE', 'NAME', 'AGE' ],
+//   BODY: [
+//     [ 'Active', 'John', 45 ],
+//     [ 'Inactive', 'Lucas', 38 ],
+//     [ 'Active', 'Mary', 35 ]
+//   ]
+// }
+console.log(tableHeadBodyStructure({ NAME: 'John', AGE: 45, PROFILE: 'Active' }));
+// { HEAD: [ 'NAME', 'AGE', 'PROFILE' ], BODY: [ 'John', 45, 'Active' ] }
 
 ```
 

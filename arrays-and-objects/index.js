@@ -140,6 +140,161 @@ exports.check = (container, property) => {
     'The first prop is a container(array/object) and the second prop the property(value or key/value if container is an object) the container has. Please make sure to fill both.'
   );
 };
+exports.checkIfEmpty = container => {
+  // CHECK IF container IS ARRAY
+  if (this.isArray(container)) {
+    return container.length === 0;
+  }
+  // CHECK IF container IS OBJECT
+  if (this.isObject(container)) {
+    return (
+      this.keys(container).length === 0 && this.values(container).length === 0
+    );
+  }
+  return new Error('Please provide an object or an array.');
+};
+exports.checkAllBoolean = (container, conditionFunction) => {
+  // CHECK IF container IS NOT NULL OR EMPTY
+  if (container !== null && typeof container !== 'undefined') {
+    // CHECK IF container IS ARRAY
+    if (this.isArray(container)) {
+      // CHECK IF THERE IS conditionFunction
+      if (conditionFunction) {
+        const checkedElements = container.map(element =>
+          conditionFunction(element)
+        );
+        return checkedElements.every(Boolean);
+      }
+      return container.every(Boolean);
+    }
+    // CHECK IF container IS OBJECT
+    if (this.isObject(container)) {
+      // CHECK IF THERE IS conditionFunction
+      if (conditionFunction) {
+        const checkedElements = this.values(container).map(val =>
+          conditionFunction(val)
+        );
+        return checkedElements.every(Boolean);
+      }
+      return this.values(container).every(Boolean);
+    }
+    return new Error('Please provide an object or an array.');
+  }
+  return new Error('Please provide an object or an array with elements.');
+};
+exports.tableHeadBodyStructure = (container, keysOrderArrayIndex = 0) => {
+  // CHECK IF container IS NOT NULL OR EMPTY
+  if (container !== null && !this.checkIfEmpty(container)) {
+    // CHECK IF container IS ARRAY AND OBJECT
+    if (
+      this.isArray(container) &&
+      this.checkAllBoolean(container, this.isObject)
+    ) {
+      // CREATE HEAD AND BODY
+      const HEAD = this.keys(container[keysOrderArrayIndex]);
+      const BODY = container.map(obj => {
+        const column = HEAD.map(key => obj[key]);
+        return column;
+      });
+      return {
+        HEAD: HEAD,
+        BODY: BODY,
+      };
+    }
+    // IF container IS ONLY OBJECT
+    if (this.isObject(container)) {
+      // CREATE HEAD AND BODY
+      const HEAD = this.keys(container);
+      const BODY = this.values(container);
+      return {
+        HEAD: HEAD,
+        BODY: BODY,
+      };
+    }
+    return new Error('Please provide an object or an array.');
+  }
+  return new Error('Please provide an object or an array with elements.');
+};
+
+// console.log(this.checkAllBoolean('Table')); //Error: Please provide an object or an array.
+// console.log(
+//   this.checkAllBoolean(
+//     [
+//       { NAME: 'John', AGE: 45 },
+//       { NAME: 'Mary', AGE: 25 },
+//     ],
+//     person => person.AGE >= 26
+//   )
+// ); //false
+// console.log(
+//   this.checkAllBoolean(
+//     [
+//       { NAME: 'John', AGE: 45 },
+//       { NAME: 'Mary', AGE: 26 },
+//     ],
+//     person => person.AGE >= 26
+//   )
+// ); //true
+// console.log(this.checkIfEmpty('Table')); //Error: Please provide an object or an array.
+// console.log(this.checkIfEmpty({ Name: '', Age: '' })); //false
+// console.log(this.checkIfEmpty({ Name: 'John', Age: 23542 })); //false
+// console.log(this.checkIfEmpty({})); //true
+// console.log(this.tableHeadBodyStructure('Table')); // Error: Please provide an object or an array with elements.
+// console.log(this.tableHeadBodyStructure()); // Error: Please provide an object or an array with elements.
+// console.log(this.tableHeadBodyStructure({})); // Error: Please provide an object or an array with elements.
+// console.log(this.tableHeadBodyStructure([123, 324, 34, 3])); //{ HEAD: [ '0', '1', '2', '3' ], BODY: [ 123, 324, 34, 3 ] }
+// console.log(
+//   this.tableHeadBodyStructure({
+//     John: { AGE: 45, PROFILE: 'Active' },
+//     Lucas: { AGE: 38, PROFILE: 'Inactive' },
+//     Mary: { AGE: 35, PROFILE: 'Active' },
+//   })
+// );
+// {
+//   HEAD: [ 'John', 'Lucas', 'Mary' ],
+//   BODY: [
+//     { AGE: 45, PROFILE: 'Active' },
+//     { AGE: 38, PROFILE: 'Inactive' },
+//     { AGE: 35, PROFILE: 'Active' }
+//   ]
+// }
+// console.log(
+//   this.tableHeadBodyStructure([
+//     { NAME: 'John', AGE: 45, PROFILE: 'Active' },
+//     { AGE: 38, PROFILE: 'Inactive', NAME: 'Lucas' },
+//     { NAME: 'Mary', PROFILE: 'Active', AGE: 35 },
+//   ])
+// );
+// {
+//   HEAD: [ 'NAME', 'AGE', 'PROFILE' ],
+//   BODY: [
+//     [ 'John', 45, 'Active' ],
+//     [ 'Lucas', 38, 'Inactive' ],
+//     [ 'Mary', 35, 'Active' ]
+//   ]
+// }
+// console.log(
+//   this.tableHeadBodyStructure(
+//     [
+//       { NAME: 'John', AGE: 45, PROFILE: 'Active' },
+//       { AGE: 38, PROFILE: 'Inactive', NAME: 'Lucas' },
+//       { PROFILE: 'Active', NAME: 'Mary', AGE: 35 },
+//     ],
+//     2
+//   )
+// );
+// {
+//   HEAD: [ 'PROFILE', 'NAME', 'AGE' ],
+//   BODY: [
+//     [ 'Active', 'John', 45 ],
+//     [ 'Inactive', 'Lucas', 38 ],
+//     [ 'Active', 'Mary', 35 ]
+//   ]
+// }
+// console.log(
+//   this.tableHeadBodyStructure({ NAME: 'John', AGE: 45, PROFILE: 'Active' })
+// );
+// { HEAD: [ 'NAME', 'AGE', 'PROFILE' ], BODY: [ 'John', 45, 'Active' ] }
 
 // console.log(this.values({ John: true, Mary: false })); // [ true, false ]
 // console.log(this.values(true)); // Error: The parameter must be an object!
