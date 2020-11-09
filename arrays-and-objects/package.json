@@ -1,6 +1,6 @@
 {
   "name": "arrays-and-objects",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Arrays and objects helper.",
   "main": "index.js",
   "scripts": {
